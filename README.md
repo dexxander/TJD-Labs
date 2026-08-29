@@ -106,7 +106,15 @@ Built for **Vercel**:
 - **No glassmorphism** — solid near-black surfaces (`#08080A` background, `#131316` cards), 1px borders, no blur.
 - **One restrained accent** — violet (`#7C5CFF`), used only for primary actions, active filters, links, and small highlights.
 - **Signature mark** — a three-node graph (Dexter · Trevor · Job) recurs at every scale: the nav logo, the hero background, the footer, and loading states.
-- **Motion system** — entrance reveals use a "focus-in" fade + rise + un-blur (`BentoCard`), the hero headline reveals word-by-word, a cursor-reactive spotlight follows the pointer across the hero, the hero constellation graph drifts with a subtle scroll parallax, and lists (GitHub repos, project grids) cascade in with a short stagger. All of it collapses to instant, no-motion states under `prefers-reduced-motion`.
+- **Motion system** — every page shares the same reveal language (fade + rise + un-blur), layered with page-specific detail:
+  - **Page transitions** — navigating between any two pages crossfades the outgoing content out and the new page in (`AnimatePresence` + React Router's `location` keying in `App.tsx`), rather than an instant swap.
+  - **Home** — word-by-word headline reveal, a cursor-reactive spotlight across the hero, a wider constellation graph with scroll parallax, and a "focus-in" (blur\u2192clear) entrance on every bento card.
+  - **Projects** — filter pills use a sliding "magic move" indicator (shared `layoutId`) instead of a hard color swap, the results count crossfades on change, and cards cascade in with a short per-card stagger — including on filter changes.
+  - **Project detail** — a scroll-linked reading-progress bar, a staggered header (badges \u2192 title \u2192 description \u2192 avatar stack popping in with a spring), a Ken-Burns zoom on the hero image, staggered feature cards and screenshot thumbnails, and a directional crossfade when paging through the lightbox.
+  - **Team** — developer avatars pop in with a spring, skill/tech tags cascade in individually, and social links lift slightly on hover.
+  - **Stack** — each category card eases in before its own tech chips stagger inside it.
+  - **About** — paragraphs reveal in sequence and each pillar's icon pops in with a small spring/rotate, separate from its card.
+  - All of it is layered behind `MotionConfig reducedMotion="user"` (framer-motion's built-in accessibility switch, set once in `App.tsx`) on top of a few components' own explicit `prefers-reduced-motion` checks (hero, ambient glow, tech marquee) — so every animation described above collapses to instant, no-motion states when the user's OS asks for it.
 - **Demo videos** — any project can include a YouTube, Vimeo, or self-hosted video via `videoUrl`; see `CONTENT-GUIDE.md`.
 - **Typography** — Space Grotesk (display), Inter (body), JetBrains Mono (tags, labels, stats).
 - All animation respects `prefers-reduced-motion`.

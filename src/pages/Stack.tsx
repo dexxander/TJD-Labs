@@ -12,8 +12,8 @@ export function Stack() {
       />
 
       <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
-        {techStack.map((group) => (
-          <TechCategory key={group.id} group={group} />
+        {techStack.map((group, i) => (
+          <TechCategory key={group.id} group={group} delay={(i % 2) * 0.08} />
         ))}
       </div>
 

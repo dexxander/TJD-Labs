@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { ArrowLeft, ArrowUpRight, ExternalLink, FileText, Github } from 'lucide-react';
 import { ProjectVisual } from '@/components/ui/ProjectVisual';
 import { Tag, StatusBadge, CollaborativeBadge } from '@/components/ui/Tag';
@@ -14,10 +14,49 @@ import { developers as allDevelopers } from '@/data/developers';
 import type { Project } from '@/types';
 
 const fadeUp = {
-  initial: { opacity: 0, y: 18 },
-  whileInView: { opacity: 1, y: 0 },
+  initial: { opacity: 0, y: 20, filter: 'blur(6px)' },
+  whileInView: { opacity: 1, y: 0, filter: 'blur(0px)' },
   viewport: { once: true, margin: '-60px' },
-  transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
+  transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
+};
+
+const headerContainer: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+};
+
+const headerItem: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+};
+
+const avatarStack: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.4 } },
+};
+
+const avatarPop: Variants = {
+  hidden: { opacity: 0, scale: 0.5 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { type: 'spring', stiffness: 320, damping: 20 },
+  },
+};
+
+const staggerContainer: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } },
+};
+
+const staggerCard: Variants = {
+  hidden: { opacity: 0, y: 18, filter: 'blur(4px)' },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
+  },
 };
 
 export function ProjectDetail() {
@@ -69,29 +108,48 @@ export function ProjectDetail() {
   return (
     <>
       <section className="container-lab pt-10 sm:pt-14">
-        <Link
-          to="/projects"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-400 transition-colors hover:text-ink-100"
-        >
-          <ArrowLeft size={15} /> All projects
-        </Link>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
+          <Link
+            to="/projects"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-400 transition-colors hover:text-ink-100"
+          >
+            <ArrowLeft size={15} /> All projects
+          </Link>
+        </motion.div>
 
         {/* Header */}
-        <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
+        <motion.div
+          variants={headerContainer}
+          initial="hidden"
+          animate="visible"
+          className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between"
+        >
           <div className="max-w-2xl">
-            <div className="flex flex-wrap items-center gap-2">
+            <motion.div variants={headerItem} className="flex flex-wrap items-center gap-2">
               <Tag>{project.category}</Tag>
               <StatusBadge status={project.status} />
               {isCollaborative && <CollaborativeBadge />}
-            </div>
-            <h1 className="mt-4 font-display text-4xl font-semibold text-ink-50 sm:text-5xl">
-              {project.title}
-            </h1>
-            <p className="mt-4 text-lg text-ink-200">{project.description}</p>
+            </motion.div>
 
-            <div className="mt-6 flex -space-x-2">
+            <motion.h1
+              variants={headerItem}
+              className="mt-4 font-display text-4xl font-semibold text-ink-50 sm:text-5xl"
+            >
+              {project.title}
+            </motion.h1>
+
+            <motion.p variants={headerItem} className="mt-4 text-lg text-ink-200">
+              {project.description}
+            </motion.p>
+
+            <motion.div
+              variants={avatarStack}
+              initial="hidden"
+              animate="visible"
+              className="mt-6 flex -space-x-2"
+            >
               {devs.map((dev) => (
-                <div key={dev.id} title={dev.name}>
+                <motion.div key={dev.id} variants={avatarPop} title={dev.name}>
                   <DeveloperAvatar
                     name={dev.name}
                     seed={dev.id}
@@ -99,12 +157,12 @@ export function ProjectDetail() {
                     size={38}
                     className="border-2 border-ink-950"
                   />
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
 
-          <div className="flex shrink-0 flex-wrap items-center gap-3">
+          <motion.div variants={headerItem} className="flex shrink-0 flex-wrap items-center gap-3">
             {project.githubUrl && (
               <LinkButton href={project.githubUrl} external variant="secondary" icon={<Github size={16} />} iconPosition="left">
                 GitHub
@@ -115,16 +173,28 @@ export function ProjectDetail() {
                 Live demo
               </LinkButton>
             )}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
-        <div className="mt-3 flex flex-wrap gap-1.5">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="mt-3 flex flex-wrap gap-1.5"
+        >
           {project.technologies.map((tech) => (
-            <Tag key={tech}>{tech}</Tag>
+            <motion.div key={tech} variants={staggerCard}>
+              <Tag>{tech}</Tag>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
-        <motion.div {...fadeUp} className="mt-10 overflow-hidden rounded-card border border-ink-600">
+        <motion.div
+          initial={{ opacity: 0, scale: 1.06, filter: 'blur(10px)' }}
+          animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+          transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-10 overflow-hidden rounded-card border border-ink-600"
+        >
           <ProjectVisual seed={project.thumbnail} label={project.title} className="aspect-[21/9] w-full" />
         </motion.div>
       </section>
@@ -136,17 +206,30 @@ export function ProjectDetail() {
           <Block heading="Solution" body={project.solution} />
 
           {/* Features bento */}
-          <motion.div {...fadeUp}>
-            <h2 className="font-display text-xl font-semibold text-ink-50">Features</h2>
-            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <motion.h2 {...fadeUp} className="font-display text-xl font-semibold text-ink-50">
+              Features
+            </motion.h2>
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-60px' }}
+              className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2"
+            >
               {project.features.map((feature) => (
-                <div key={feature.title} className="card-surface p-5">
+                <motion.div
+                  key={feature.title}
+                  variants={staggerCard}
+                  whileHover={{ y: -3 }}
+                  className="card-surface p-5 transition-colors duration-300 ease-signature hover:border-ink-500"
+                >
                   <p className="font-medium text-ink-100">{feature.title}</p>
                   <p className="mt-1.5 text-sm text-ink-300">{feature.description}</p>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
 
           {project.videoUrl && <ProjectVideo videoUrl={project.videoUrl} title={project.title} />}
 
@@ -163,7 +246,13 @@ export function ProjectDetail() {
 
         {/* Sidebar */}
         <div className="space-y-8 lg:col-span-1">
-          <motion.div {...fadeUp} className="card-surface p-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20, filter: 'blur(6px)' }}
+            whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            className="card-surface p-6"
+          >
             <h2 className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-400">
               Technology
             </h2>
@@ -174,15 +263,31 @@ export function ProjectDetail() {
             </div>
           </motion.div>
 
-          <motion.div {...fadeUp} className="card-surface p-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20, filter: 'blur(6px)' }}
+            whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.55, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+            className="card-surface p-6"
+          >
             <h2 className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-400">
               Contributions
             </h2>
-            <div className="mt-5 space-y-5">
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-40px' }}
+              className="mt-5 space-y-5"
+            >
               {project.contributions.map((contribution) => {
                 const dev = allDevelopers.find((d) => d.id === contribution.developer);
                 return (
-                  <div key={contribution.developer} className="flex items-start gap-3">
+                  <motion.div
+                    key={contribution.developer}
+                    variants={staggerCard}
+                    className="flex items-start gap-3"
+                  >
                     <DeveloperAvatar
                       name={dev?.name ?? contribution.developer}
                       seed={contribution.developer}
@@ -199,13 +304,19 @@ export function ProjectDetail() {
                         ))}
                       </ul>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
-            </div>
+            </motion.div>
           </motion.div>
 
-          <motion.div {...fadeUp} className="card-surface p-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20, filter: 'blur(6px)' }}
+            whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.55, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+            className="card-surface p-6"
+          >
             <h2 className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-400">Links</h2>
             <div className="mt-4 space-y-2.5">
               {project.githubUrl && (
@@ -241,10 +352,11 @@ function Block({ heading, body }: { heading: string; body: string }) {
 
 function LinkRow({ icon, label, href }: { icon: ReactNode; label: string; href: string }) {
   return (
-    <a
+    <motion.a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
+      whileHover={{ x: 2 }}
       className="group flex items-center justify-between rounded-xl2 border border-ink-600/70 bg-ink-900/40 px-3.5 py-2.5 text-sm text-ink-200 transition-colors hover:border-violet-500/40 hover:text-ink-50"
     >
       <span className="flex items-center gap-2">
@@ -255,6 +367,6 @@ function LinkRow({ icon, label, href }: { icon: ReactNode; label: string; href: 
         size={14}
         className="text-ink-500 transition-transform duration-300 ease-signature group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-violet-400"
       />
-    </a>
+    </motion.a>
   );
 }

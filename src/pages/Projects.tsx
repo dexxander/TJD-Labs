@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { ProjectFilters } from '@/components/projects/ProjectFilters';
 import { ProjectGrid } from '@/components/projects/ProjectGrid';
@@ -59,7 +60,12 @@ export function Projects() {
         description="A collection of software, experiments, university projects, and things we built just because we wanted to see if we could."
       />
 
-      <div className="card-surface mt-10 p-5 sm:p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20, filter: 'blur(6px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        className="card-surface mt-10 p-5 sm:p-6"
+      >
         <ProjectFilters
           developerFilter={developerFilter}
           categoryFilter={categoryFilter}
@@ -67,11 +73,22 @@ export function Projects() {
           onCategoryChange={setCategoryFilter}
           availableCategories={availableCategories}
         />
-      </div>
+      </motion.div>
 
-      <p className="mt-6 text-sm text-ink-400">
-        {loading ? 'Loading projects\u2026' : `${filtered.length} project${filtered.length === 1 ? '' : 's'}`}
-      </p>
+      <div className="relative mt-6 h-5 overflow-hidden text-sm text-ink-400">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.p
+            key={loading ? 'loading' : filtered.length}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-0"
+          >
+            {loading ? 'Loading projects\u2026' : `${filtered.length} project${filtered.length === 1 ? '' : 's'}`}
+          </motion.p>
+        </AnimatePresence>
+      </div>
 
       <div className="mt-6">
         {error && !loading && <ErrorState message={error} />}

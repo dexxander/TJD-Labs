@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { Github, Linkedin, FolderGit2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DeveloperAvatar } from '@/components/ui/DeveloperAvatar';
@@ -11,23 +11,40 @@ interface DeveloperCardProps {
   delay?: number;
 }
 
+const chipContainer: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.045 } },
+};
+
+const chipItem: Variants = {
+  hidden: { opacity: 0, y: 6 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } },
+};
+
 export function DeveloperCard({ developer, projects, delay = 0 }: DeveloperCardProps) {
   return (
     <motion.section
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 24, filter: 'blur(6px)' }}
+      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: 0.65, delay, ease: [0.16, 1, 0.3, 1] }}
       className="card-surface p-7 sm:p-9"
     >
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-        <DeveloperAvatar
-          name={developer.name}
-          seed={developer.id}
-          imageSrc={developer.avatarImage}
-          size={72}
-          className="text-2xl"
-        />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.75 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.55, delay: delay + 0.15, type: 'spring', stiffness: 260, damping: 18 }}
+        >
+          <DeveloperAvatar
+            name={developer.name}
+            seed={developer.id}
+            imageSrc={developer.avatarImage}
+            size={72}
+            className="text-2xl"
+          />
+        </motion.div>
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -46,21 +63,37 @@ export function DeveloperCard({ developer, projects, delay = 0 }: DeveloperCardP
               <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-400">
                 Skills
               </p>
-              <div className="flex flex-wrap gap-1.5">
+              <motion.div
+                variants={chipContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-40px' }}
+                className="flex flex-wrap gap-1.5"
+              >
                 {developer.skills.map((skill) => (
-                  <Tag key={skill}>{skill}</Tag>
+                  <motion.div key={skill} variants={chipItem}>
+                    <Tag>{skill}</Tag>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </div>
             <div>
               <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-400">
                 Technologies
               </p>
-              <div className="flex flex-wrap gap-1.5">
+              <motion.div
+                variants={chipContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-40px' }}
+                className="flex flex-wrap gap-1.5"
+              >
                 {developer.technologies.map((tech) => (
-                  <Tag key={tech}>{tech}</Tag>
+                  <motion.div key={tech} variants={chipItem}>
+                    <Tag>{tech}</Tag>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </div>
           </div>
 
@@ -80,15 +113,16 @@ export function DeveloperCard({ developer, projects, delay = 0 }: DeveloperCardP
             </span>
 
             {developer.github ? (
-              <a
+              <motion.a
                 href={developer.github}
                 target="_blank"
                 rel="noopener noreferrer"
+                whileHover={{ y: -2 }}
                 className="flex items-center gap-1.5 text-sm text-ink-300 transition-colors hover:text-ink-50"
               >
                 <Github size={15} />
                 GitHub
-              </a>
+              </motion.a>
             ) : (
               <span className="flex items-center gap-1.5 text-sm text-ink-500">
                 <Github size={15} />
@@ -97,15 +131,16 @@ export function DeveloperCard({ developer, projects, delay = 0 }: DeveloperCardP
             )}
 
             {developer.linkedin ? (
-              <a
+              <motion.a
                 href={developer.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
+                whileHover={{ y: -2 }}
                 className="flex items-center gap-1.5 text-sm text-ink-300 transition-colors hover:text-ink-50"
               >
                 <Linkedin size={15} />
                 LinkedIn
-              </a>
+              </motion.a>
             ) : (
               <span className="flex items-center gap-1.5 text-sm text-ink-500">
                 <Linkedin size={15} />
@@ -115,17 +150,24 @@ export function DeveloperCard({ developer, projects, delay = 0 }: DeveloperCardP
           </div>
 
           {projects.length > 0 && (
-            <div className="mt-5 flex flex-wrap gap-2">
+            <motion.div
+              variants={chipContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-40px' }}
+              className="mt-5 flex flex-wrap gap-2"
+            >
               {projects.slice(0, 4).map((project) => (
-                <Link
-                  key={project.id}
-                  to={`/projects/${project.slug}`}
-                  className="rounded-full border border-ink-600 bg-ink-900/50 px-3 py-1.5 text-xs font-medium text-ink-200 transition-colors hover:border-violet-500/50 hover:text-violet-200"
-                >
-                  {project.title}
-                </Link>
+                <motion.div key={project.id} variants={chipItem}>
+                  <Link
+                    to={`/projects/${project.slug}`}
+                    className="inline-block rounded-full border border-ink-600 bg-ink-900/50 px-3 py-1.5 text-xs font-medium text-ink-200 transition-colors hover:border-violet-500/50 hover:text-violet-200"
+                  >
+                    {project.title}
+                  </Link>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </div>
       </div>

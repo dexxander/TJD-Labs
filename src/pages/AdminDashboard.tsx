@@ -105,7 +105,12 @@ export function AdminDashboard() {
 
   return (
     <section className="container-lab pt-10 sm:pt-14">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="flex flex-wrap items-center justify-between gap-4"
+      >
         <div className="flex items-center gap-3">
           <BrandMark size={26} />
           <div>
@@ -116,21 +121,31 @@ export function AdminDashboard() {
         <Button variant="secondary" size="sm" onClick={handleSignOut} icon={<LogOut size={14} />} iconPosition="left">
           Sign out
         </Button>
-      </div>
+      </motion.div>
 
       {!isFirebaseEnabled && (
-        <div className="mt-6 rounded-xl2 border border-signal-progress/30 bg-signal-progress/5 px-4 py-3 text-xs text-ink-200">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-6 rounded-xl2 border border-signal-progress/30 bg-signal-progress/5 px-4 py-3 text-xs text-ink-200"
+        >
           Demo mode: changes below live only in this browser tab and reset on reload. Connect
           Firebase (see <code className="font-mono">.env.example</code>) and set{' '}
           <code className="font-mono">VITE_USE_FIREBASE=true</code> to persist edits to Firestore.
-        </div>
+        </motion.div>
       )}
 
-      <div className="mt-8 grid grid-cols-3 gap-4">
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={{ visible: { transition: { staggerChildren: 0.08, delayChildren: 0.2 } } }}
+        className="mt-8 grid grid-cols-3 gap-4"
+      >
         <StatBlock label="Total projects" value={stats.total} />
         <StatBlock label="Featured" value={stats.featured} />
         <StatBlock label="Live" value={stats.live} />
-      </div>
+      </motion.div>
 
       <div className="mt-8 flex items-center justify-between">
         <p className="text-sm text-ink-400">{projects.length} projects</p>
@@ -139,11 +154,20 @@ export function AdminDashboard() {
         </Button>
       </div>
 
-      <div className="mt-4 space-y-2.5">
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={{ visible: { transition: { staggerChildren: 0.035, delayChildren: 0.3 } } }}
+        className="mt-4 space-y-2.5"
+      >
         {projects.map((project) => (
           <motion.div
             layout
             key={project.id}
+            variants={{
+              hidden: { opacity: 0, y: 12 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
+            }}
             className="card-surface flex items-center gap-4 p-3.5"
           >
             <ProjectVisual
@@ -204,7 +228,7 @@ export function AdminDashboard() {
             </div>
           </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {editing && (
         <EditPanel
@@ -222,10 +246,16 @@ export function AdminDashboard() {
 
 function StatBlock({ label, value }: { label: string; value: number }) {
   return (
-    <div className="card-surface p-5">
+    <motion.div
+      variants={{
+        hidden: { opacity: 0, y: 14, scale: 0.96 },
+        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
+      }}
+      className="card-surface p-5"
+    >
       <p className="font-display text-2xl font-semibold text-ink-50">{value}</p>
       <p className="mt-1 text-xs text-ink-400">{label}</p>
-    </div>
+    </motion.div>
   );
 }
 

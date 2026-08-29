@@ -1,3 +1,4 @@
+import { motion, type Variants } from 'framer-motion';
 import clsx from 'clsx';
 import type { CategoryFilter, DeveloperFilter, ProjectCategory } from '@/types';
 import { developers } from '@/data/developers';
@@ -45,6 +46,7 @@ export function ProjectFilters({
   return (
     <div className="space-y-4">
       <FilterRow
+        groupId="developer"
         label="Developer"
         options={DEVELOPER_FILTERS}
         active={developerFilter}
@@ -52,6 +54,7 @@ export function ProjectFilters({
         getLabel={developerLabel}
       />
       <FilterRow
+        groupId="category"
         label="Category"
         options={visibleCategories}
         active={categoryFilter}
@@ -61,7 +64,18 @@ export function ProjectFilters({
   );
 }
 
+const rowContainer: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.04 } },
+};
+
+const pillItem: Variants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
+};
+
 interface FilterRowProps<T extends string> {
+  groupId: string;
   label: string;
   options: T[];
   active: T;
@@ -69,32 +83,50 @@ interface FilterRowProps<T extends string> {
   getLabel?: (value: T) => string;
 }
 
-function FilterRow<T extends string>({ label, options, active, onChange, getLabel }: FilterRowProps<T>) {
+function FilterRow<T extends string>({
+  groupId,
+  label,
+  options,
+  active,
+  onChange,
+  getLabel,
+}: FilterRowProps<T>) {
   return (
     <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
       <span className="w-24 shrink-0 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-400">
         {label}
       </span>
-      <div className="flex flex-wrap gap-2">
+      <motion.div
+        variants={rowContainer}
+        initial="hidden"
+        animate="visible"
+        className="flex flex-wrap gap-2"
+      >
         {options.map((option) => {
           const isActive = option === active;
           return (
-            <button
+            <motion.button
               key={option}
+              variants={pillItem}
               onClick={() => onChange(option)}
               aria-pressed={isActive}
               className={clsx(
-                'rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all duration-300 ease-signature',
-                isActive
-                  ? 'border-violet-500/60 bg-violet-500/15 text-violet-200'
-                  : 'border-ink-600 bg-ink-800/60 text-ink-300 hover:border-ink-500 hover:text-ink-100',
+                'relative rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors duration-300 ease-signature',
+                isActive ? 'border-violet-500/60 text-violet-100' : 'border-ink-600 bg-ink-800/60 text-ink-300 hover:border-ink-500 hover:text-ink-100',
               )}
             >
-              {getLabel ? getLabel(option) : option}
-            </button>
+              {isActive && (
+                <motion.span
+                  layoutId={`${groupId}-active-pill`}
+                  transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                  className="absolute inset-0 rounded-full bg-violet-500/15"
+                />
+              )}
+              <span className="relative z-10">{getLabel ? getLabel(option) : option}</span>
+            </motion.button>
           );
         })}
-      </div>
+      </motion.div>
     </div>
   );
 }
